@@ -30,11 +30,8 @@ public class ProdutoController {
     @GetMapping("/{id}")
     public ResponseEntity<Produto> getProdutoById(@PathVariable Long id) {
         Optional<Produto> produtoOptional = produtoRepository.findById(id);
-        if (produtoOptional.isPresent()) {
-            return ResponseEntity.ok(produtoOptional.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return produtoOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Endpoint para criar um novo produto
@@ -70,5 +67,12 @@ public class ProdutoController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // Endpoint para buscar produtos pelo nome
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Produto>> buscarProdutosPorNome(@RequestParam String nome) {
+        List<Produto> produtos = produtoRepository.findAllByProdutoContainingIgnoreCase(nome);
+        return ResponseEntity.ok(produtos);
     }
 }
